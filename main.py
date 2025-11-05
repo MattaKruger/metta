@@ -1,20 +1,21 @@
 from contextlib import asynccontextmanager
-from typing import List
 
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine
 
-from extract_features import (
+from .extract_features import (
     extract_audio_features,
     extract_features_from_directory,
 )
-from models.features import AudioFeatures
+from .models.audio_features import AudioFeatures
+from .routes import last_fm_router
+from .settings import Settings
 
-# SQLite database URL
+settings = Settings()
+
 DATABASE_URL = "sqlite:///./audio_features.db"
 
-# Create engine with SQLite-specific configuration
 engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False},
@@ -22,31 +23,22 @@ engine = create_engine(
 )
 
 
-def create_db_and_tables():
-    """Create database tables on startup."""
+def create_db_and_tables() -> None:
     SQLModel.metadata.create_all(engine)
 
 
-def get_session():
-    """Dependency to get database session."""
+def get_session() -> Session:
     with Session(engine) as session:
         yield session
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager for FastAPI app.
-    Handles startup and shutdown events.
-    """
-    # Startup
     print("Starting up...")
     create_db_and_tables()
-    print("Database initialized!")
 
     yield
 
-    # Shutdown
     print("Shutting down...")
 
 
@@ -56,6 +48,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+app.include_router(last_fm_router)
 
 
 @app.get("/")
@@ -64,14 +57,6 @@ def get_root():
     return {
         "message": "Welcome to Audio Features API",
         "status": "API is running",
-        "endpoints": {
-            "health": "/health",
-            "upload_audio": "/extract-features/upload",
-            "extract_from_file": "/extract-features/file",
-            "extract_from_directory": "/extract-features/directory",
-            "get_all_features": "/features",
-            "get_feature_by_id": "/features/{id}",
-        },
     }
 
 
@@ -266,9 +251,3 @@ def get_features_by_filename(filename: str, session: Session = Depends(get_sessi
         )
 
     return {"count": len(features), "data": features}
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)

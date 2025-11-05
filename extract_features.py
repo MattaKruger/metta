@@ -15,14 +15,14 @@ Extracted Features:
 
 2. SPECTRAL FEATURES
    These features analyze the frequency content of the audio signal.
-   
+
    - spectral_centroid_hz: The "center of mass" of the frequency spectrum.
                            Indicates where most of the sound energy is concentrated.
                            - Low values (< 2 kHz): Darker, bass-heavy sounds (e.g., low drums, cello)
                            - Mid values (2-5 kHz): Balanced sounds (e.g., voice, guitar)
                            - High values (> 5 kHz): Brighter, treble-rich sounds (e.g., cymbals, hi-hats)
                            Useful for distinguishing timbre and tone quality.
-   
+
    - spectral_rolloff_hz: The frequency below which 85% of the audio energy is contained.
                           Similar to spectral centroid but represents where "most" energy ends.
                           - Helps identify the presence of high-frequency content
@@ -31,13 +31,13 @@ Extracted Features:
 
 3. TEMPORAL FEATURES
    These features capture how the audio signal changes over time.
-   
+
    - zero_crossing_rate: How many times the audio signal crosses zero per second.
                          Indicates how "noisy" or "unpredictable" the signal is.
                          - Low values (0.02-0.05): Smooth, tonal sounds (e.g., vowels, sustained notes)
                          - High values (0.1+): Noisy, percussive, or consonant sounds
                          Useful for speech/music classification and voice activity detection.
-   
+
    - rms_energy: Root Mean Square energy - a measure of the signal's loudness/power.
                  Calculated as the square root of the mean of the squared signal.
                  - Range: 0 to 1 (normalized)
@@ -46,32 +46,33 @@ Extracted Features:
                  Useful for onset detection and energy-based segmentation.
 
 4. MFCC (MEL-FREQUENCY CEPSTRAL COEFFICIENTS)
-   MFCCs are the most widely used features in audio processing and speech recognition.
+   MFCCs are the most widely used features in audio processing an
+ recognition.
    They represent the audio in a way that mimics human hearing.
-   
+
    The Mel scale compresses the frequency axis based on how humans perceive pitch:
    - Low frequencies are spread out (humans are more sensitive to differences in bass)
    - High frequencies are compressed (humans are less sensitive to differences in treble)
-   
+
    - mfcc_0 to mfcc_12: 13 coefficients representing different aspects of the sound
      * mfcc_0: Represents overall loudness/energy of the signal
      * mfcc_1 to mfcc_12: Capture spectral characteristics
-     
+
    Each coefficient represents a different aspect of the frequency spectrum:
    - Early coefficients (0-3) capture broad spectral shape (bass to treble)
    - Later coefficients (4-12) capture fine details and texture
-   
+
    Uses: Widely used in music genre classification, speaker recognition, music similarity,
          and audio classification tasks.
 
 5. CHROMA FEATURES
    - chroma_energy: Mean energy across the 12 chromatic (musical) pitch classes.
                     Based on the musical notes: C, C#, D, D#, E, F, F#, G, G#, A, A#, B
-                    
+
                     Represents the average "colorfulness" or "harmonic content" of the audio.
                     - Low values: Less harmonic content (more noise, percussion)
                     - High values: Rich harmonic content (sustained notes, chords)
-                    
+
                     Useful for:
                     * Music key detection
                     * Chord recognition
@@ -83,7 +84,7 @@ Extracted Features:
                 - Low values (60-90 BPM): Slow, relaxing music
                 - Mid values (90-140 BPM): Typical pop, rock, dance music
                 - High values (140+ BPM): Energetic, fast-paced music
-                
+
                 Useful for:
                 * Genre classification
                 * Music mood/energy detection
@@ -117,7 +118,7 @@ from typing import List
 import librosa
 import numpy as np
 
-from models.features import AudioFeatures
+from .models.audio_features import AudioFeatures
 
 
 def extract_audio_features(filepath: str) -> AudioFeatures:
@@ -192,9 +193,7 @@ def extract_audio_features(filepath: str) -> AudioFeatures:
         # Mel-Frequency Cepstral Coefficients: Represent audio as humans hear it
         # 13 coefficients capture different aspects of spectral content
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-        mfcc_values = {
-            f"mfcc_{i}": float(np.mean(mfccs[i])) for i in range(len(mfccs))
-        }
+        mfcc_values = {f"mfcc_{i}": float(np.mean(mfccs[i])) for i in range(len(mfccs))}
 
         # ==================== CHROMA FEATURES ====================
         # Chroma STFT: Energy in 12 musical pitch classes (C, C#, D, ... B)
@@ -206,9 +205,7 @@ def extract_audio_features(filepath: str) -> AudioFeatures:
         onset_env = librosa.onset.onset_strength(y=y, sr=sr)
         tempo, beats = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
         # Extract scalar value - ensure tempo is a single float
-        tempo_bpm = float(
-            np.asarray(tempo).item() if np.isscalar(tempo) else tempo[0]
-        )
+        tempo_bpm = float(np.asarray(tempo).item() if np.isscalar(tempo) else tempo[0])
 
         # ==================== CREATE AND RETURN AUDIOFEATURES MODEL ====================
         features = AudioFeatures(
@@ -227,9 +224,7 @@ def extract_audio_features(filepath: str) -> AudioFeatures:
         return features
 
     except Exception as e:
-        raise RuntimeError(
-            f"Error processing audio file {filename}: {str(e)}"
-        ) from e
+        raise RuntimeError(f"Error processing audio file {filename}: {str(e)}") from e
 
 
 def extract_features_from_directory(directory: str) -> List[AudioFeatures]:
@@ -251,7 +246,7 @@ def extract_features_from_directory(directory: str) -> List[AudioFeatures]:
 
     Returns:
         List[AudioFeatures]: List of AudioFeatures instances for all successfully
-                            processed audio files in the directory.
+        processed audio files in the directory.
 
     Raises:
         FileNotFoundError: If the directory does not exist.
@@ -260,7 +255,7 @@ def extract_features_from_directory(directory: str) -> List[AudioFeatures]:
         >>> features_list = extract_features_from_directory("./music_library")
         >>> print(f"Processed {len(features_list)} files")
         >>> for features in features_list:
-        ...     print(f"{features.filename}: {features.tempo_bpm} BPM")
+            ...     print(f"{features.filename}: {features.tempo_bpm} BPM")
     """
     audio_extensions = {".flac", ".wav", ".mp3", ".m4a", ".ogg"}
     dir_path = Path(directory)
