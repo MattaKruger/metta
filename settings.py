@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     # listenbrainz_api_key: str = Field(default="")
     # musicbrainz_api_key: str = Field(default="")
 
+    db_url: str = Field(default="")
     aucoustic_api_key: str = Field(default="")
-
     last_fm_api_key: str = Field(default="")
     last_fm_secret: str = Field(default="")
     last_fm_user: str = Field(default="")

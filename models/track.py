@@ -6,3 +6,4 @@ class Track(SQLModel):
     name: str = Field(default="")
     artist: str = Field(default="")
     duration: float = Field(default=0.0)
+    genre: str = Field(default="")
