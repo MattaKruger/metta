@@ -25,9 +25,7 @@ class SubGenre(Base, table=True):
     genre_id: int | None = Field(default=None, foreign_key="genre.id")
     genre: Optional[Genre] = Relationship(back_populates="sub_genres")
 
-    parent_subgenre_id: Optional[int] = Field(
-        default=None, foreign_key="subgenre.id"
-    )
+    parent_subgenre_id: Optional[int] = Field(default=None, foreign_key="subgenre.id")
 
     # Textual characteristics
     characteristics: List[str] = Field(

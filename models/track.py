@@ -1,12 +1,24 @@
-from sqlmodel import Field, SQLModel
+from sqlalchemy.orm.relationships import foreign
+from typing import Optional, List
+from sqlmodel import Field, SQLModel, Relationship
+from sqlalchemy import Index
 
 from .base import Base
 from .genre import Genre
+from .album import Album
+from .artist import Artist
+from .audio_features import AudioFeatures
 
 
 class Track(Base, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(default="")
-    artist: str = Field(default="")
+    name: str = Field(default="", index=True)
+    artists: List[Artist] = Relationship(back_populates="tracks", index=True)
+    album: Optional[Album] = Relationship(back_populates="tracks")
     duration: float = Field(default=0.0)
-    genre: Genre
+
+    audio_features_id: Optional[int] = Field(
+        default=None, foreign_key="audio_features.id"
+    )
+    audio_features: AudioFeatures = Relationship(back_populates="tracks")
+
+    genre: Genre = Relationship(back_populates="tracks")

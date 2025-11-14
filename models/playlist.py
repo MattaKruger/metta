@@ -7,5 +7,5 @@ from .track import Track
 
 
 class Playlist(Base):
-    name: stxde = Field(default="")
-    tracks: List[Track] = Field(default=[])
+    name: str = Field(default="")
+    tracks: List[Track] = Field(default_factory=list())
