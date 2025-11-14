@@ -6,20 +6,24 @@ from sqlmodel.main import Relationship
 
 from .base import Base
 from .tag import Tag
+from .playlist import Playlist
 
 
 class Genre(Base, table=True):
-    id: int = Field(default=None, primary_key=True)
-    name: str = Field(..., min_length=1, max_length=100)
+    name: str = Field(..., min_length=1, max_length=100, index=True)
     description: Optional[str] = Field(default=None, max_length=500)
 
     tags: List["Tag"] = Relationship(back_populates="genre")
     sub_genres: List["SubGenre"] = Relationship(back_populates="genre")
+    playlists: List["Playlist"] = Relationship(back_populates="genres")
+    is_active: bool = Field(default=True)
+
+    def has_sub_genres(self):
+        return len(self.sub_genres) > 0
 
 
 class SubGenre(Base, table=True):
-    id: int = Field(default=None, primary_key=True)
-    name: str = Field(..., min_length=1, max_length=100)
+    name: str = Field(..., min_length=1, max_length=100, index=True)
     description: Optional[str] = Field(default=None, max_length=500)
 
     genre_id: int | None = Field(default=None, foreign_key="genre.id")

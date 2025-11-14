@@ -3,11 +3,11 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 from sqlmodel.main import Relationship
 
+from .base import Base
 from .genre import Genre
 
 
-class Tag(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+class Tag(Base, table=True):
     name: str = Field(max_length=255)
 
     genre_id: int | None = Field(default=None, foreign_key="genre.id")

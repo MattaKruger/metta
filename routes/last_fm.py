@@ -31,7 +31,7 @@ def get_recent_tracks(last_fm: LastFMNetwork = Depends(get_lastfm_network)):
 
     tags = {}
     for played_track in played_tracks:
-        tag$[played_track.track.artist] = played_track.track.get_top_tags(5)
+        tags[played_track.track.artist] = played_track.track.get_top_tags(5)
 
     return played_tracks
 

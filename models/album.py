@@ -13,3 +13,6 @@ class Album(Base, table=True):
 
     def get_duration(self) -> int:
         return sum(track.duration for track in self.tracks)
+
+    def get_artists(self) -> str:
+        return ", ".join(artist.name for artist in self.artists)
