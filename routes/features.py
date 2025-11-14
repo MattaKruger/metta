@@ -24,13 +24,6 @@ router = APIRouter(
 async def upload_and_extract(
     file: UploadFile = File(...), session: Session = Depends(get_session)
 ):
-    """
-    Upload an audio file and extract its features.
-
-    Supported formats: .wav, .mp3, .flac, .m4a, .ogg
-
-    Returns the extracted features saved to the database.
-    """
     try:
         if not file.filename:
             raise HTTPException(status_code=400, detail="No filename provided")
@@ -97,9 +90,7 @@ def extract_from_file(filepath: str, session: Session = Depends(get_session)):
 
 
 @router.post("/extract-features/directory")
-def extract_from_directory(
-    directory: str, session: Session = Depends(get_session)
-):
+def extract_from_directory(directory: str, session: Session = Depends(get_session)):
     """
     Extract features from all audio files in a directory.
 
@@ -175,9 +166,7 @@ def get_feature_by_id(feature_id: int, session: Session = Depends(get_session)):
         feature_id: The ID of the audio features record
     """
     features = (
-        session.query(AudioFeatures)
-        .filter(AudioFeatures.id == feature_id)
-        .first()
+        session.query(AudioFeatures).filter(AudioFeatures.id == feature_id).first()
     )
 
     if not features:
@@ -187,9 +176,7 @@ def get_feature_by_id(feature_id: int, session: Session = Depends(get_session)):
 
 
 @router.get("/features/filename/{filename}")
-def get_features_by_filename(
-    filename: str, session: Session = Depends(get_session)
-):
+def get_features_by_filename(filename: str, session: Session = Depends(get_session)):
     """
     Get audio features by filename.
 
@@ -197,9 +184,7 @@ def get_features_by_filename(
         filename: The filename to search for
     """
     features = (
-        session.query(AudioFeatures)
-        .filter(AudioFeatures.filename == filename)
-        .all()
+        session.query(AudioFeatures).filter(AudioFeatures.filename == filename).all()
     )
 
     if not features:

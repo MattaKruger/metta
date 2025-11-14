@@ -1,42 +1,29 @@
-from datetime import datetime
+from .base import Base
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
 
-class AudioFeatures(SQLModel, table=True):
-    """
-    SQLModel for storing extracted audio features.
-
-    This model corresponds to the features extracted by extract_features.py,
-    including spectral features, MFCCs, temporal characteristics, and more.
-    """
-
+class AudioFeatures(Base, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
-    # Basic metadata
     filename: str = Field(index=True)
-    created_at: datetime = Field(default_factory=datetime.now)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    # Basic audio info
     duration_seconds: float
     sample_rate_hz: int
 
-    # Spectral features
     spectral_centroid_hz: float
     spectral_rolloff_hz: float
 
-    # Temporal features
     zero_crossing_rate: float
     rms_energy: float
 
-    # Tempo
     tempo_bpm: float
 
-    # Chroma features
     chroma_energy: float
 
-    # MFCC coefficients (13 coefficients)
     mfcc_0: float
     mfcc_1: float
     mfcc_2: float

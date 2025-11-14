@@ -18,15 +18,6 @@ router = APIRouter(
 )
 
 
-def get_lastfm_network() -> LastFMNetwork:
-    return LastFMNetwork(
-        api_key=settings.last_fm_api_key,
-        api_secret=settings.last_fm_secret,
-        username=settings.last_fm_user,
-        password_hash=(md5(settings.last_fm_pass)),
-    )
-
-
 @router.get("/current")
 def get_current_track(last_fm: LastFMNetwork = Depends(get_lastfm_network)):
     pass
@@ -40,7 +31,7 @@ def get_recent_tracks(last_fm: LastFMNetwork = Depends(get_lastfm_network)):
 
     tags = {}
     for played_track in played_tracks:
-        tags[played_track.track.artist] = played_track.track.get_top_tags(5)
+        tag$[played_track.track.artist] = played_track.track.get_top_tags(5)
 
     return played_tracks
 
